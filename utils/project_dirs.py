@@ -9,16 +9,3 @@ def emb_root():
     res.mkdir(parents=True, exist_ok=True)
     return res
 
-def emb_dataset(dataset:str):
-    res = emb_root() / dataset
-    res.mkdir(parents=True, exist_ok=True)
-    return res
-
-def emb_dataset_alg(dataset:str, alg='nmf'):
-    res = emb_root() / dataset / alg
-    res.mkdir(parents=True, exist_ok=True)
-    return res
-
-def game_dir():
-    return project_root() / "game"
-
