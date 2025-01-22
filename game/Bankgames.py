@@ -1,10 +1,11 @@
 from game.helpers import *
-from game.distributions_integrals import *
+from game.distributions import *
 from game.hedgealgs import HedgeSimultaneous
 
 class GameTrueMatrix:
-    def __init__(self, gammas:list[float], taus: list[float]): # both banks have the same strategy spaces
-        self.A = generate_utility_matrix(gammas=gammas, taus=taus)
+    def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
+        self.A = generate_utility_matrix(gammas=gammas, taus=taus, c_f=dist.c_f)
+        self.dist = dist
         self.gammas = gammas
         self.taus = taus
 
@@ -40,7 +41,7 @@ class GameFreshEstimate:
         self.dist = dist
 
     def get_PayoffMat_est(self):
-        y_samples = self.dist.get_samples(self.num_samples)
+        y_samples = self.dist.get_samples(self.dist.get_samples(self.num_samples))
         return matrix_from_samples(y_samples=y_samples, gammas=self.gammas, taus=self.taus)
 
     def run_hedge(self, T:int, p_b1, p_b2, eta):
