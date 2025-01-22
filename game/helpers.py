@@ -3,64 +3,64 @@ from fractions import Fraction
 from scipy.stats import truncnorm, beta
 from scipy.integrate import quad
 
-def c_f(gamma, tau_a, tau_b, c = 2):
+# def c_f(gamma, tau_a, tau_b, c = 2):
 
-    if c==1:
-        ####### Uniform56
-        # epsilon_1>0, epsilon_2 < 0 33
-        return 0.5 * (2 + gamma) * (tau_b**2- tau_a**2) - (tau_b - tau_a)
-    if c==2:
-        ####### Trancate Gaussian
-        ## sigma = 0.2, ga_l = 0.2 ga_h = 0.9
-        # mu = 0.1 epsion_1 < 0, epsilon_2 >0 22
-        # mu = 0.4 epsilon_1 <0, epsilon_2 <0 22 33
-        # mu = 0.6 epsilon_1 <0, epsilon_2 <0 22 33
-        # mu = 0.7 epsilon_1 >0, epsilon_2 <0 33
-        #
-        ## sigma  = 0.1, mu = 0.55, ga_l = 0.5 ga_h = 0.6
-        sigma = 0.2
-        mu = 0.6
-        def truncated_normal_pdf(y):
-            a, b = 0, 1
-            a_scaled = (a - mu) / sigma
-            b_scaled = (b - mu) / sigma
-            return truncnorm.pdf(y, a_scaled, b_scaled, loc=mu, scale=sigma)
+#     if c==1:
+#         ####### Uniform56
+#         # epsilon_1>0, epsilon_2 < 0 33
+#         return 0.5 * (2 + gamma) * (tau_b**2- tau_a**2) - (tau_b - tau_a)
+#     if c==2:
+#         ####### Trancate Gaussian
+#         ## sigma = 0.2, ga_l = 0.2 ga_h = 0.9
+#         # mu = 0.1 epsion_1 < 0, epsilon_2 >0 22
+#         # mu = 0.4 epsilon_1 <0, epsilon_2 <0 22 33
+#         # mu = 0.6 epsilon_1 <0, epsilon_2 <0 22 33
+#         # mu = 0.7 epsilon_1 >0, epsilon_2 <0 33
+#         #
+#         ## sigma  = 0.1, mu = 0.55, ga_l = 0.5 ga_h = 0.6
+#         sigma = 0.2
+#         mu = 0.6
+#         def truncated_normal_pdf(y):
+#             a, b = 0, 1
+#             a_scaled = (a - mu) / sigma
+#             b_scaled = (b - mu) / sigma
+#             return truncnorm.pdf(y, a_scaled, b_scaled, loc=mu, scale=sigma)
 
-        def integrand(y):
-            return ((2 + gamma) * y - 1) * truncated_normal_pdf(y)
+#         def integrand(y):
+#             return ((2 + gamma) * y - 1) * truncated_normal_pdf(y)
 
-        result, _ = quad(integrand, tau_a, tau_b)
-        return result
-    if c==3:
-        ##### Beta
-        alpha = 1
-        beta_param = 2
-        def integrand(y, gamma, alpha, beta_param):
-            return ((2 + gamma) * y - 1) * beta.pdf(y, alpha, beta_param)
-        result, _ = quad(integrand, tau_a, tau_b, args=(gamma, alpha, beta_param))
-        return result
-    if c ==4:
-        ####### pisewise uniform
-        ga_l = 0.5
-        ga_h = 0.6
-        tau_l = 1/(2+ga_h)
-        tau_h = 1/(2+ga_l)
+#         result, _ = quad(integrand, tau_a, tau_b)
+#         return result
+#     if c==3:
+#         ##### Beta
+#         alpha = 1
+#         beta_param = 2
+#         def integrand(y, gamma, alpha, beta_param):
+#             return ((2 + gamma) * y - 1) * beta.pdf(y, alpha, beta_param)
+#         result, _ = quad(integrand, tau_a, tau_b, args=(gamma, alpha, beta_param))
+#         return result
+#     if c ==4:
+#         ####### pisewise uniform
+#         ga_l = 0.5
+#         ga_h = 0.6
+#         tau_l = 1/(2+ga_h)
+#         tau_h = 1/(2+ga_l)
 
-        def piecewise_uniform_pdf(y):
-            if 0 <= y < tau_l:
-                return (0.01) / tau_l
-            elif tau_l <= y < tau_h:
-                return (0.95) / (tau_h - tau_l)
-            elif tau_h <= y <= 1:
-                return 0.049 / (1 - tau_h)
-            else:
-                return 0  # 超出 [0, 1] 范围
+#         def piecewise_uniform_pdf(y):
+#             if 0 <= y < tau_l:
+#                 return (0.01) / tau_l
+#             elif tau_l <= y < tau_h:
+#                 return (0.95) / (tau_h - tau_l)
+#             elif tau_h <= y <= 1:
+#                 return 0.049 / (1 - tau_h)
+#             else:
+#                 return 0  # 超出 [0, 1] 范围
 
-        def integrand(y):
-            return ((2 + gamma) * y - 1) * piecewise_uniform_pdf(y)
+#         def integrand(y):
+#             return ((2 + gamma) * y - 1) * piecewise_uniform_pdf(y)
 
-        result, _ = quad(integrand, tau_a, tau_b)
-        return result
+#         result, _ = quad(integrand, tau_a, tau_b)
+#         return result
 
 def generate_utility_matrix(gammas, taus, c_f):
     '''

@@ -1,0 +1,25 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore virtual environment folders
+env/
+venv/
+.bankgame/
+
+# Ignore Conda environment files (if not explicitly needed)
+*.conda
+*.env
+
+# Ignore log files
+*.log
+
+# Ignore system files (macOS and Linux)
+.DS_Store
+*.swp
+*.swo
