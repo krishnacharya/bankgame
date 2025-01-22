@@ -41,7 +41,7 @@ class GameFreshEstimate:
         self.dist = dist
 
     def get_PayoffMat_est(self):
-        y_samples = self.dist.get_samples(self.dist.get_samples(self.num_samples))
+        y_samples = self.dist.get_samples(self.num_samples)
         return matrix_from_samples(y_samples=y_samples, gammas=self.gammas, taus=self.taus)
 
     def run_hedge(self, T:int, p_b1, p_b2, eta):
