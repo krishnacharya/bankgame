@@ -62,9 +62,10 @@ def c_f(gamma, tau_a, tau_b, c = 2):
         result, _ = quad(integrand, tau_a, tau_b)
         return result
 
-def generate_utility_matrix(gammas, taus):
+def generate_utility_matrix(gammas, taus, c_f):
     '''
         Return utility matrix for bank1, column index represents bank1's strategy, row index represents bank2's strat
+        c_f is a function that can do integral tau_a to tau_b of [(2+gamma)y - 1] p(y) dy
     '''
     n = len(gammas)
     size = n * n  # Matrix size based on all possible gamma-tau pairs
@@ -112,7 +113,7 @@ def generate_utility_matrix(gammas, taus):
     return matrix
 
 
-def calculate_utility_from_sample(gamma1, tau1, gamma2, tau2, y):
+def calculate_utility_from_sample(gamma1:float, tau1:float, gamma2:float, tau2:float, y:float):
     '''
     Calculate utility for Bank 1 from this customer with credit score y
     y is the sampled credit score for a customer
