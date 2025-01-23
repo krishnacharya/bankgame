@@ -5,10 +5,10 @@ import matplotlib.colors as mcolors
 def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)):
     """
     Plot Bank 1's probabilities over time, comparing different games side by side.
-    Handles arbitrary number of actions with dynamic color generation.
+    Labels actions using gamma and tau values.
     
     Parameters:
-    game_results (list): List of tuples containing (p_b1, p_b2) numpy arrays from game.run_hedge()
+    game_results (list): List of tuples containing (p_b1, p_b2, gammas, taus) from game.run_hedge()
     titles (list): List of titles for each game plot. If None, uses default numbering
     figsize (tuple): Figure size as (width, height)
     """
@@ -31,7 +31,6 @@ def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)
         axes = axes.reshape(-1, 1) if num_cols == 1 else axes.reshape(1, -1)
     
     # Generate colors using a color map
-    # Use HSV colormap to ensure maximally distinct colors
     color_map = plt.cm.hsv
     colors = [color_map(i / num_actions) for i in range(num_actions)]
     
@@ -39,12 +38,25 @@ def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)
     time_steps = np.arange(T)
     
     # Create plots
-    for idx, ((p_b1, _), ax) in enumerate(zip(game_results, axes.flatten())):
+    for idx, (p_b1, _, gammas, taus, *_) in enumerate(game_results):
+        ax = axes.flatten()[idx]
+        
+        # Calculate n for pair indexing
+        n = len(taus)
+        
         # Plot each action's probability over time
         for action in range(num_actions):
+            # Convert action index to gamma and tau indices
+            gamma_idx = action // n
+            tau_idx = action % n
+            
+            # Get the actual gamma and tau values
+            gamma = gammas[gamma_idx]
+            tau = taus[tau_idx]
+            
             ax.plot(time_steps, p_b1[:, action], 
                    color=colors[action], 
-                   label=f'Action {action+1}',
+                   label=f'γ={gamma:.2f}, τ={tau:.2f}',
                    linewidth=2)
         
         # Customize each subplot
