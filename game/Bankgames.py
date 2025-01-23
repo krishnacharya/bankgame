@@ -77,7 +77,8 @@ class GameMovingAvg:
         self.num_samples = num_samples
         self.dist = dist
         self.num_rounds = 0 # number of rounds of hedge
-        self.A_est = np.zeros(())
+        self.num_actions = len(gammas) * len(taus)
+        self.A_est = np.zeros((self.num_actions, self.num_actions))
 
     def update_PayoffMat_est(self):
         y_samples = self.dist.get_samples(self.num_samples)
