@@ -66,6 +66,9 @@ def generate_utility_matrix(gammas, taus, c_f):
     '''
         Return utility matrix for bank1, column index represents bank1's strategy, row index represents bank2's strat
         c_f is a function that can do integral tau_a to tau_b of [(2+gamma)y - 1] p(y) dy
+
+        action indexing is of the form
+        gamma_1, (tau_1....tau_n); gamma_2 (tau_1 ...tau_n); ... ; gamma_n (tau_1 ... tau_n)
     '''
     n = len(gammas)
     size = n * n  # Matrix size based on all possible gamma-tau pairs
