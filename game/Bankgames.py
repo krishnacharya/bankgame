@@ -2,12 +2,45 @@ from game.helpers import *
 from game.distributions import *
 from game.hedgealgs import HedgeSimultaneous
 
+class GameTrueMatrix2by2:
+    def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
+        assert len(gammas) == len(taus) == 2
+        self.gl, self.gh = sorted(gammas)
+        self.taul, self.tauh = sorted(taus)
+        self.A = generate_utility_matrix(gammas=gammas, taus=taus, c_f=dist.c_f)
+        self.dist = dist
+        self.save_eps12_c()
+
+        # TODO resmaining
+    def save_eps12_c():
+        # self.eps1
+        # self.eps2
+        # self.cval
+        pass
+    
+    def run_hedge():
+        pass
+    
+    def get_theory_eq():
+        '''
+            Get the NE for the game depedning on eps_1, eps_2, c etc
+        '''
+        pass
+    
+    def check_convergence_to_theoryeq(p_b1, p_b2):
+        '''
+            check if both banks have converged to any of the NE for the game
+        '''
+        pass
+
+
+
 class GameTrueMatrix:
     def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
         self.A = generate_utility_matrix(gammas=gammas, taus=taus, c_f=dist.c_f)
         self.dist = dist
-        self.gammas = gammas
-        self.taus = taus
+        self.gammas = sorted(gammas)
+        self.taus = sorted(taus)
 
     def run_hedge(self, T:int, p_b1:np.array, p_b2:np.array, eta:float):
         '''
@@ -35,8 +68,8 @@ class GameFreshEstimate:
         '''
             num_samples: number of customers to draw in each round.
         '''
-        self.gammas = gammas
-        self.taus = taus
+        self.gammas = sorted(gammas)
+        self.taus = sorted(taus)
         self.num_samples = num_samples
         self.dist = dist
 
@@ -72,8 +105,8 @@ class GameMovingAvg:
         '''
             num_samples: number of customers to draw in each round.
         '''
-        self.gammas = gammas
-        self.taus = taus
+        self.gammas = sorted(gammas)
+        self.taus = sorted(taus)
         self.num_samples = num_samples
         self.dist = dist
         self.num_rounds = 0 # number of rounds of hedge
