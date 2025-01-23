@@ -60,7 +60,6 @@ class GameFreshEstimate:
         b2_record = [p_b2]
         for t in range(T):
             A_est = self.get_PayoffMat_est()
-            print(A_est)
             p_b1, p_b2 = HedgeSimultaneous(p_b1, p_b2, eta, A_est)
             b1_record.append(p_b1)
             b2_record.append(p_b2)
