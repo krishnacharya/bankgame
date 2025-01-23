@@ -28,7 +28,7 @@ class GameTrueMatrix:
             p_b1, p_b2 = HedgeSimultaneous(p_b1, p_b2, eta, self.A)
             b1_record.append(p_b1)
             b2_record.append(p_b2)
-        return np.array(b1_record), np.array(b2_record)
+        return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
 class GameFreshEstimate:
     def __init__(self, gammas:list[float], taus: list[float], num_samples:int, dist:Dist):
@@ -63,7 +63,7 @@ class GameFreshEstimate:
             p_b1, p_b2 = HedgeSimultaneous(p_b1, p_b2, eta, A_est)
             b1_record.append(p_b1)
             b2_record.append(p_b2)
-        return np.array(b1_record), np.array(b2_record)
+        return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
         
 
 class GameMovingAverage:# TODO
