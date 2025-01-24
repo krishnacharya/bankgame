@@ -14,10 +14,10 @@ class GameTrueMatrix2by2:
         self.taul, self.tauh = self.taus
         self.A = generate_utility_matrix(gammas=self.gammas, taus=self.taus, c_f=dist.c_f)
         self.dist = dist
-        self.am = {'gltl': [1,0,0,0], # this typically doesnt't have support on it
-        'glth': [0,1,0,0], # this has support usually
-        'ghtl': [0,0,1,0], # this has support usually
-        'ghth': [0,0,0,1],  # this typically doesnt't have support on it
+        self.am = {'tlgl': [1,0,0,0], 
+        'tlgh': [0,1,0,0], # this has support usually
+        'thgl': [0,0,1,0], # this has support usually
+        'thgh': [0,0,0,1],
          } # action map for code we index as given in the docstring, slightly diff than the paper index 1 and 2 swapped
         self.save_NE_theory()
         self.save_NE_nashpy()
@@ -37,19 +37,19 @@ class GameTrueMatrix2by2:
         
         self.NE_theory = []
         if self.eps1 > 0 and self.eps2 > 0: # only 1 symmetric pure NE is (gammah, taul)
-            self.NE_theory.append([self.am['ghtl'], self.am['ghtl']])
+            self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
 
         elif self.eps1 < 0 and self.eps2 < 0: # only 1 symmetric pure NE is (gammal, tauh)
-            self.NE_theory.append([self.am['glth'], self.am['glth']])
+            self.NE_theory.append([self.am['thgl'], self.am['thgl']])
 
         elif self.eps1 < 0 and self.eps2 > 0: # 3 NE, 2 assymetric pure, 1 mixed NE
-            self.NE_theory.append([self.am['ghtl'], self.am['glth']])
-            self.NE_theory.append([self.am['glth'], self.am['ghtl']])
+            self.NE_theory.append([self.am['tlgh'], self.am['thgl']])
+            self.NE_theory.append([self.am['thgl'], self.am['tlgh']])
             self.NE_theory.append([[0,1-self.c,self.c,0], [0,1-self.c,self.c,0]])
 
         elif self.eps1 > 0 and self.eps2 < 0: # 3 NE, 2 symmetric pure, 1 mixed NE
-            self.NE_theory.append([self.am['glth'], self.am['glth']])
-            self.NE_theory.append([self.am['ghtl'], self.am['ghtl']])
+            self.NE_theory.append([self.am['thgl'], self.am['thgl']])
+            self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
             self.NE_theory.append([[0,1-self.c,self.c,0], [0,1-self.c,self.c,0]])      
         else:
             raise Exception # anyone of them exactly zero?

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)):
+def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)): # TODO fix indexing here too now gamma is the faster changing index
     """
     Plot Bank 1's probabilities over time, comparing different games side by side.
     Labels actions using gamma and tau values.
