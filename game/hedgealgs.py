@@ -11,7 +11,7 @@ def HedgeSimultaneous(p_b1:np.array, p_b2:np.array, eta:float, A:np.array):
     
         Returns Updated p_b1 and p_b2
     '''
-    assert A.shape[0] == A.shape[1] == p_b1.shape[0] == p_b2.shape[0]
+    #assert A.shape[0] == A.shape[1] == p_b1.shape[0] == p_b2.shape[0]
     mw_1 = np.exp(eta * (p_b2 @ A))
     mw_2 = np.exp(eta * (p_b1 @ A))
     p_b1 = (mw_1 * p_b1)

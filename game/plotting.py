@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)): # TODO fix indexing here too now gamma is the faster changing index
+
+def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)):
     """
     Plot Bank 1's probabilities over time, comparing different games side by side.
     Labels actions using gamma and tau values.
@@ -41,14 +42,16 @@ def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)
     for idx, (p_b1, _, gammas, taus, *_) in enumerate(game_results):
         ax = axes.flatten()[idx]
         
-        # Calculate n for pair indexing
-        n = len(taus)
+        # Get the number of gammas and taus for the current game
+        g = len(gammas)
+        t = len(taus)
         
         # Plot each action's probability over time
         for action in range(num_actions):
-            # Convert action index to gamma and tau indices
-            gamma_idx = action // n
-            tau_idx = action % n
+            # Calculate the appropriate gamma and tau indices
+            gamma_idx = action % g
+            tau_idx = (action // g) % t  # Ensure we wrap tau_idx correctly if taus vary
+            #print(action, gamma_idx, tau_idx)
             
             # Get the actual gamma and tau values
             gamma = gammas[gamma_idx]
