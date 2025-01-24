@@ -32,41 +32,24 @@ class GameTrueMatrix:
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
-    def find_closest_to_NE(self, p_b1, p_b2): # TODO test
+    def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
         """
-        Finds the closest precomputed Nash equilibrium to the given strategies p_b1 (Bank1) and p_b2 (Bank2).
-        
-        Returns:
-        - closest_NE: tuple (NE_b2, NE_b1) corresponding to the closest Nash equilibrium
-        - min_distance: Euclidean distance to the closest NE
-        """
-        strategy_vector = np.concatenate((p_b2, p_b1))  # Bank2 first, then Bank1
-        min_distance = float('inf')
-        closest_NE = None
-        for NE_b2, NE_b1 in self.NE_ve:
-            NE_vector = np.concatenate((NE_b2, NE_b1))  # Concatenate precomputed NE strategies
-            distance = np.linalg.norm(strategy_vector - NE_vector)
-            if distance < min_distance:
-                min_distance = distance
-                closest_NE = (NE_b2, NE_b1)
-        return closest_NE, min_distance
+        p_b1 bank 1's stategy 
+        p_b2 bank 2's stategy
 
-    def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8): # TODO test
-        """
-        Checks if there exists a precomputed Nash equilibrium where each element is within `epsilon` tolerance.
+        Checks if there exists a Nash equilibrium (of the normal formal game) where each element is within `epsilon` tolerance.
         
         Returns:
         - closest_NE: Set of all NE tuples (NE_b2, NE_b1) satisfying the element-wise condition.
         - If no NE satisfies the condition, returns an empty set.
         """
-        strategy_vector = np.concatenate((p_b2, p_b1))  # Concatenate strategies
-        close_NEs = set()
+        profile = np.concatenate((p_b2, p_b1))
+        close_NEs = []
         for NE_b2, NE_b1 in self.NE_ve:
-            NE_vector = np.concatenate((NE_b2, NE_b1))  # Concatenate NE strategies
-            # Check if all element-wise differences are within epsilon
-            if np.all(np.abs(strategy_vector - NE_vector) <= epsilon):
-                close_NEs.add((tuple(NE_b2),tuple(NE_b1)))  # Store as tuples (immutable)
-        return close_NEs  # Returns a set (empty if no NE is within tolerance)
+            NE_vector = np.concatenate((NE_b2, NE_b1))
+            if np.allclose(profile, NE_vector, atol=epsilon):
+                close_NEs.append((NE_b2, NE_b1)) # tuple of numpy arrays
+        return close_NEs  # Returns a list (empty if no NE is within tolerance)
 
     def saveget_NE_vertexenum(self):
         npygame = nash.Game(self.A.T, self.A)  # nashpy first takes the row players matrix, then column players;
@@ -208,6 +191,25 @@ class GameTrueMatrix2by2:
                                    [0, self.c, 1 - self.c, 0]])
         else:
             raise Exception  # anyone of them exactly zero?
+        
+    def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
+        """
+        p_b1 bank 1's stategy 
+        p_b2 bank 2's stategy
+
+        Checks if there exists a Nash equilibrium (of the normal formal game) where each element is within `epsilon` tolerance.
+        
+        Returns:
+        - closest_NE: Set of all NE tuples (NE_b2, NE_b1) satisfying the element-wise condition.
+        - If no NE satisfies the condition, returns an empty set.
+        """
+        profile = np.concatenate((p_b2, p_b1))
+        close_NEs = []
+        for NE_b2, NE_b1 in self.NE_se:
+            NE_vector = np.concatenate((NE_b2, NE_b1))
+            if np.allclose(profile, NE_vector, atol=epsilon):
+                close_NEs.append((NE_b2, NE_b1)) # tuple of numpy arrays
+        return close_NEs  # Returns a list (empty if no NE is within tolerance)
 
     def saveget_NE_supportenum(self):  # runs support enumeration to get all NE, pure, mixed
         '''
@@ -217,8 +219,26 @@ class GameTrueMatrix2by2:
         self.NE_se = list(npygame.support_enumeration())  # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
         return self.NE_se
 
-    def run_hedge(self):
-        pass
+    def run_hedge(self, T:int, p_b1:np.array, p_b2:np.array, eta:float):
+        '''
+            T: number of rounds of Hedge
+            p_b1: initial probability weights on each action for bank1 
+            p_b2: initial probability weights on each action for bank1 
+            eta: learning rate for hedge
+
+            returns 
+            probability on each action in each round
+            
+            return type -  (T, #actions), (T, #actions)
+            Bank 1, Bank2
+        '''
+        b1_record = [p_b1]
+        b2_record = [p_b2]
+        for t in range(T):
+            p_b1, p_b2 = HedgeSimultaneous(p_b1, p_b2, eta, self.A)
+            b1_record.append(p_b1)
+            b2_record.append(p_b2)
+        return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
     def check_convergence_to_theoryeq(self, p_b1, p_b2):
         '''
