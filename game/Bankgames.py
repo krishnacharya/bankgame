@@ -3,76 +3,11 @@ from game.distributions import *
 from game.hedgealgs import HedgeSimultaneous
 import nashpy as nash
 
-class GameTrueMatrix2by2:
-    def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
-        '''
-            Note action index 0 - (gammal, taul); 1 - (gammal, tauh) ; 2- (gammah, taul) ; 3 - (gammah, tauh)
-        '''
-        assert len(gammas) == len(taus) == 2
-        self.gammas = sorted(gammas)
-        self.taus = sorted(taus)
-        self.gl, self.gh = self.gammas
-        self.taul, self.tauh = self.taus
-        self.A = generate_utility_matrix(gammas=self.gammas, taus=self.taus, c_f=dist.c_f)
-        self.dist = dist
-        self.am = {'tlgl': [1,0,0,0],
-        'tlgh': [0,1,0,0], # this has support usually
-        'thgl': [0,0,1,0], # this has support usually
-        'thgh': [0,0,0,1],
-         } # action map for code we index as given in the docstring, slightly diff than the paper index 1 and 2 swapped
-        self.save_NE_theory()
-        self.save_NE_supportenum()
-
-
-    def save_NE_theory(self):
-        '''
-            analytically characterized NE in the paper depending on epsilon conditions
-        '''
-        gammal_tauh_1 = self.dist.c_f(self.gl, self.tauh, 1.0)
-        gammah_taul_tauh = self.dist.c_f(self.gh, self.taul, self.tauh)
-        gammah_tauh_1 = self.dist.c_f(self.gh, self.tauh, 1.0)
-        gammah_taul_1 = self.dist.c_f(self.gh, self.taul, 1.0)
-        self.eps1 = 0.5 * gammah_taul_1 - gammal_tauh_1
-        self.eps2 = gammah_taul_tauh - 0.5 * gammal_tauh_1
-        self.c = (gammal_tauh_1 - 2*gammah_taul_tauh) / (gammah_tauh_1 - gammal_tauh_1 - gammah_taul_tauh) # useful for mixed NE
-        
-        self.NE_theory = []
-        if self.eps1 > 0 and self.eps2 > 0: # only 1 symmetric pure NE is (gammah, taul)
-            self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
-
-        elif self.eps1 < 0 and self.eps2 < 0: # only 1 symmetric pure NE is (gammal, tauh)
-            self.NE_theory.append([self.am['thgl'], self.am['thgl']])
-
-        elif self.eps1 < 0 and self.eps2 > 0: # 3 NE, 2 assymetric pure, 1 mixed NE
-            self.NE_theory.append([self.am['tlgh'], self.am['thgl']])
-            self.NE_theory.append([self.am['thgl'], self.am['tlgh']])
-            self.NE_theory.append([[0,self.c,1-self.c, 0], [0,self.c,1-self.c, 0]])
-
-        elif self.eps1 > 0 and self.eps2 < 0: # 3 NE, 2 symmetric pure, 1 mixed NE
-            self.NE_theory.append([self.am['thgl'], self.am['thgl']])
-            self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
-            self.NE_theory.append([[0,self.c,1-self.c, 0], [0,self.c,1-self.c, 0]])
-        else:
-            raise Exception # anyone of them exactly zero?
-
-    def save_NE_supportenum(self): # runs support enumeration to get all NE, pure, mixed 
-        npygame = nash.Game(self.A.T, self.A) # nashpy first takes the row players matrix, then column players; 
-        self.NE_se = list(npygame.support_enumeration()) # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
-
-    def run_hedge(self):
-        pass
-
-    def check_convergence_to_theoryeq(self, p_b1, p_b2):
-        '''
-            check if both banks have converged to any of the NE for the game
-        '''
-        pass
-
 class GameTrueMatrix:
     def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
         self.A = generate_utility_matrix(gammas=gammas, taus=taus, c_f=dist.c_f)
         self.dist = dist
-        self.gammas = sorted(gammas)
+        self.gammas = sorted(gammas)  # important to sort
         self.taus = sorted(taus)
 
     def run_hedge(self, T:int, p_b1:np.array, p_b2:np.array, eta:float):
@@ -95,18 +30,23 @@ class GameTrueMatrix:
             b1_record.append(p_b1)
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
-    
-    def save_NE_supportenum(self): # runs support enumeration to get all NE, pure, mixed 
-        npygame = nash.Game(self.A.T, self.A) # nashpy first takes the row players matrix, then column players; 
+
+    def saveget_NE_supportenum(self): # runs support enumeration to get all NE, pure, mixed
+        npygame = nash.Game(self.A.T, self.A) # nashpy first takes the row players matrix, then column players;
         self.NE_se = list(npygame.support_enumeration()) # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
         return self.NE_se
+    
+    def saveget_NE_vertexenum(self):
+        npygame = nash.Game(self.A.T, self.A)  # nashpy first takes the row players matrix, then column players;
+        self.NE_ve = list(npygame.vertex_enumeration())  # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
+        return self.NE_ve
 
 class GameFreshEstimate:
     def __init__(self, gammas:list[float], taus: list[float], num_samples:int, dist:Dist):
         '''
             num_samples: number of customers to draw in each round.
         '''
-        self.gammas = sorted(gammas)
+        self.gammas = sorted(gammas)  # important to sort
         self.taus = sorted(taus)
         self.num_samples = num_samples
         self.dist = dist
@@ -137,13 +77,12 @@ class GameFreshEstimate:
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
 
-
 class GameMovingAvg:
     def __init__(self, gammas:list[float], taus: list[float], num_samples:int, dist:Dist):
         '''
             num_samples: number of customers to draw in each round.
         '''
-        self.gammas = sorted(gammas)
+        self.gammas = sorted(gammas) # important to sort in ascending
         self.taus = sorted(taus)
         self.num_samples = num_samples
         self.dist = dist
@@ -178,3 +117,74 @@ class GameMovingAvg:
             b1_record.append(p_b1)
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
+
+class GameTrueMatrix2by2:
+    '''
+        Special case of the GameTrueMatrix for 2 gammas and 2 taus, for which we have theoretical characterization for all NE
+    '''
+    def __init__(self, gammas: list[float], taus: list[float], dist: Dist):  # both banks have the same strategy spaces
+        assert len(gammas) == len(taus) == 2
+        self.gammas = sorted(gammas) # important to sort
+        self.taus = sorted(taus)
+        self.gl, self.gh = self.gammas
+        self.taul, self.tauh = self.taus
+        self.A = generate_utility_matrix(gammas=self.gammas,taus=self.taus, c_f=dist.c_f)
+        self.dist = dist
+        self.am = {
+            'tlgl': [1, 0, 0, 0],
+            'tlgh': [0, 1, 0, 0],
+            'thgl': [0, 0, 1, 0],
+            'thgh': [0, 0, 0, 1],
+        }  # action map for code we index as given in the docstring, slightly diff than the paper index 1 and 2 swapped
+        self.save_NE_theory()
+        self.saveget_NE_supportenum()
+
+    def save_NE_theory(self):
+        '''
+            analytically characterized NE in the paper depending on epsilon conditions
+        '''
+        gammal_tauh_1 = self.dist.c_f(self.gl, self.tauh, 1.0)
+        gammah_taul_tauh = self.dist.c_f(self.gh, self.taul, self.tauh)
+        gammah_tauh_1 = self.dist.c_f(self.gh, self.tauh, 1.0)
+        gammah_taul_1 = self.dist.c_f(self.gh, self.taul, 1.0)
+        self.eps1 = 0.5 * gammah_taul_1 - gammal_tauh_1
+        self.eps2 = gammah_taul_tauh - 0.5 * gammal_tauh_1
+        self.c = (gammal_tauh_1 - 2 * gammah_taul_tauh) / (gammah_tauh_1 - gammal_tauh_1 - gammah_taul_tauh)  # useful for mixed NE
+        
+        self.NE_theory = []
+        if self.eps1 > 0 and self.eps2 > 0:  # only 1 symmetric pure NE is (gammah, taul)
+            self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
+
+        elif self.eps1 < 0 and self.eps2 < 0:  # only 1 symmetric pure NE is (gammal, tauh)
+            self.NE_theory.append([self.am['thgl'], self.am['thgl']])
+
+        elif self.eps1 < 0 and self.eps2 > 0:  # 3 NE, 2 assymetric pure, 1 mixed NE
+            self.NE_theory.append([self.am['tlgh'], self.am['thgl']])
+            self.NE_theory.append([self.am['thgl'], self.am['tlgh']])
+            self.NE_theory.append([[0, self.c, 1 - self.c, 0],
+                                   [0, self.c, 1 - self.c, 0]])
+
+        elif self.eps1 > 0 and self.eps2 < 0:  # 3 NE, 2 symmetric pure, 1 mixed NE
+            self.NE_theory.append([self.am['thgl'], self.am['thgl']])
+            self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
+            self.NE_theory.append([[0, self.c, 1 - self.c, 0],
+                                   [0, self.c, 1 - self.c, 0]])
+        else:
+            raise Exception  # anyone of them exactly zero?
+
+    def saveget_NE_supportenum(self):  # runs support enumeration to get all NE, pure, mixed
+        '''
+            Save and return NE obtained via support enumeration for the bank game
+        '''
+        npygame = nash.Game(self.A.T, self.A)  # nashpy first takes the row players matrix, then column players;
+        self.NE_se = list(npygame.support_enumeration())  # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
+        return self.NE_se
+
+    def run_hedge(self):
+        pass
+
+    def check_convergence_to_theoryeq(self, p_b1, p_b2):
+        '''
+            check if both banks have converged to any of the NE for the game
+        '''
+        pass
