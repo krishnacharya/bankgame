@@ -15,7 +15,7 @@ class GameTrueMatrix2by2:
         self.taul, self.tauh = self.taus
         self.A = generate_utility_matrix(gammas=self.gammas, taus=self.taus, c_f=dist.c_f)
         self.dist = dist
-        self.am = {'tlgl': [1,0,0,0], 
+        self.am = {'tlgl': [1,0,0,0],
         'tlgh': [0,1,0,0], # this has support usually
         'thgl': [0,0,1,0], # this has support usually
         'thgh': [0,0,0,1],
@@ -46,12 +46,12 @@ class GameTrueMatrix2by2:
         elif self.eps1 < 0 and self.eps2 > 0: # 3 NE, 2 assymetric pure, 1 mixed NE
             self.NE_theory.append([self.am['tlgh'], self.am['thgl']])
             self.NE_theory.append([self.am['thgl'], self.am['tlgh']])
-            self.NE_theory.append([[0,1-self.c,self.c,0], [0,1-self.c,self.c,0]])
+            self.NE_theory.append([[0,self.c,1-self.c, 0], [0,self.c,1-self.c, 0]])
 
         elif self.eps1 > 0 and self.eps2 < 0: # 3 NE, 2 symmetric pure, 1 mixed NE
             self.NE_theory.append([self.am['thgl'], self.am['thgl']])
             self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
-            self.NE_theory.append([[0,1-self.c,self.c,0], [0,1-self.c,self.c,0]])      
+            self.NE_theory.append([[0,self.c,1-self.c, 0], [0,self.c,1-self.c, 0]])
         else:
             raise Exception # anyone of them exactly zero?
 
