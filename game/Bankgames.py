@@ -8,9 +8,11 @@ class GameTrueMatrix2by2:
             Note action index 0 - (gammal, taul); 1 - (gammal, tauh) ; 2- (gammah, taul) ; 3 - (gammah, tauh)
         '''
         assert len(gammas) == len(taus) == 2
-        self.gl, self.gh = sorted(gammas)
-        self.taul, self.tauh = sorted(taus)
-        self.A = generate_utility_matrix(gammas=gammas, taus=taus, c_f=dist.c_f)
+        self.gammas = sorted(gammas)
+        self.taus = sorted(taus)
+        self.gl, self.gh = self.gammas
+        self.taul, self.tauh = self.taus
+        self.A = generate_utility_matrix(gammas=self.gammas, taus=self.taus, c_f=dist.c_f)
         self.dist = dist
         self.am = {'gltl': [1,0,0,0], # this typically doesnt't have support on it
         'glth': [0,1,0,0], # this has support usually

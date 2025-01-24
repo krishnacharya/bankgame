@@ -68,15 +68,15 @@ def generate_utility_matrix(gammas, taus, c_f):
         c_f is a function that can do integral tau_a to tau_b of [(2+gamma)y - 1] p(y) dy
 
         action indexing is of the form
-        gamma_1, (tau_1....tau_n); gamma_2 (tau_1 ...tau_n); ... ; gamma_n (tau_1 ... tau_n)
+        tau_1, (gamma_1....gamma_n); tau_2 (gamma_1 ...gamma_n); ... ; tau_n (gamma_1 ... gamma_n)
     '''
     n = len(gammas)
     size = n * n  # Matrix size based on all possible gamma-tau pairs
     matrix = np.zeros((size, size))
 
     # Helper function to get index for gamma-tau pair
-    def get_pair_index(gamma_idx, tau_idx):
-        return gamma_idx * n + tau_idx
+    def get_pair_index(tau_idx, gamma_idx):
+        return tau_idx * n + gamma_idx
 
     # Iterate through all combinations for both banks
     for g1 in range(n):  # Bank 1 gamma
@@ -85,13 +85,9 @@ def generate_utility_matrix(gammas, taus, c_f):
                 for t2 in range(n):  # Bank 2 tau
                     row = get_pair_index(t2, g2)  # Bank 2's choice
                     col = get_pair_index(t1, g1)  # Bank 1's choice
-
-                    tau1 = taus[t1]
-                    tau2 = taus[t2]
-
-                    ga1 = gammas[g1]
-                    ga2 = gammas[g2]
-
+                    
+                    tau1, tau2 = taus[t1], taus[t2]
+                    ga1, ga2 = gammas[g1], gammas[g2]
                     if tau1 > tau2:
                         if ga1 > ga2:  # Higher gamma
                             matrix[row, col] = 0
@@ -140,12 +136,15 @@ def calculate_utility_from_sample(gamma1:float, tau1:float, gamma2:float, tau2:f
 
 
 def matrix_from_samples(y_samples, gammas, taus):
+    '''
+        action indexing of the form tau_1, (gamma_1....gamma_n); tau_2 (gamma_1 ...gamma_n); ... ; tau_n (gamma_1 ... gamma_n)
+    '''
     n = len(gammas)
     size = n * n  # Matrix size based on all possible gamma-tau pairs
     matrix = np.zeros((size, size))
 
-    def get_pair_index(gamma_idx, tau_idx):
-        return gamma_idx * n + tau_idx
+    def get_pair_index(tau_idx, gamma_idx):
+        return tau_idx * n + gamma_idx
 
     for g1 in range(n):
         for t1 in range(n):
