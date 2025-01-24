@@ -1,6 +1,7 @@
 from game.helpers import *
 from game.distributions import *
 from game.hedgealgs import HedgeSimultaneous
+import nashpy as nash
 
 class GameTrueMatrix2by2:
     def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
@@ -20,7 +21,7 @@ class GameTrueMatrix2by2:
         'thgh': [0,0,0,1],
          } # action map for code we index as given in the docstring, slightly diff than the paper index 1 and 2 swapped
         self.save_NE_theory()
-        self.save_NE_nashpy()
+        self.save_NE_supportenum()
 
 
     def save_NE_theory(self):
@@ -54,8 +55,9 @@ class GameTrueMatrix2by2:
         else:
             raise Exception # anyone of them exactly zero?
 
-    def save_NE_nashpy(self): # runs support enumeration to get all NE, pure, mixed 
-        pass
+    def save_NE_supportenum(self): # runs support enumeration to get all NE, pure, mixed 
+        npygame = nash.Game(self.A.T, self.A) # nashpy first takes the row players matrix, then column players; 
+        self.NE_se = list(npygame.support_enumeration()) # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
 
     def run_hedge(self):
         pass
@@ -65,8 +67,6 @@ class GameTrueMatrix2by2:
             check if both banks have converged to any of the NE for the game
         '''
         pass
-
-
 
 class GameTrueMatrix:
     def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
@@ -95,6 +95,11 @@ class GameTrueMatrix:
             b1_record.append(p_b1)
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
+    
+    def save_NE_supportenum(self): # runs support enumeration to get all NE, pure, mixed 
+        npygame = nash.Game(self.A.T, self.A) # nashpy first takes the row players matrix, then column players; 
+        self.NE_se = list(npygame.support_enumeration()) # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
+        return self.NE_se
 
 class GameFreshEstimate:
     def __init__(self, gammas:list[float], taus: list[float], num_samples:int, dist:Dist):
