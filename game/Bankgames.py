@@ -12,14 +12,14 @@ class GameTrueMatrix2by2:
         self.taul, self.tauh = sorted(taus)
         self.A = generate_utility_matrix(gammas=gammas, taus=taus, c_f=dist.c_f)
         self.dist = dist
+        self.am = {'gltl': [1,0,0,0], # this typically doesnt't have support on it
+        'glth': [0,1,0,0], # this has support usually
+        'ghtl': [0,0,1,0], # this has support usually
+        'ghth': [0,0,0,1],  # this typically doesnt't have support on it
+         } # action map for code we index as given in the docstring, slightly diff than the paper index 1 and 2 swapped
         self.save_NE_theory()
         self.save_NE_nashpy()
 
-        self.am = {'gltl': [1,0,0,0], # this typically doesnt't have support on it
-                   'glth': [0,1,0,0], # this has support usually
-                   'ghtl': [0,0,1,0], # this has support usually
-                   'ghth': [0,0,0,1],  # this typically doesnt't have support on it
-                    } # action map for code we index as given in the docstring, slightly diff than the paper index 1 and 2 swapped
 
     def save_NE_theory(self):
         '''
