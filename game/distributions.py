@@ -88,7 +88,7 @@ class PiecewiseUniform(Dist):
     def c_f(self, gamma, tau_a, tau_b):
         def piecewise_uniform_pdf(y):
             if 0 <= y < self.tau_l:
-                return 0.01 / self.tau_l
+                return 0.001 / self.tau_l
             elif self.tau_l <= y < self.tau_h:
                 return 0.95 / (self.tau_h - self.tau_l)
             elif self.tau_h <= y <= 1:
