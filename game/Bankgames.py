@@ -5,10 +5,10 @@ import nashpy as nash
 
 class GameTrueMatrix:
     def __init__(self, gammas:list[float], taus: list[float], dist:Dist): # both banks have the same strategy spaces
-        self.A = generate_utility_matrix(gammas=gammas, taus=taus, c_f=dist.c_f)
-        self.dist = dist
         self.gammas = sorted(gammas)  # important to sort
         self.taus = sorted(taus)
+        self.A = generate_utility_matrix(gammas=self.gammas, taus=self.taus, c_f=dist.c_f)
+        self.dist = dist
 
     def run_hedge(self, T:int, p_b1:np.array, p_b2:np.array, eta:float):
         '''
