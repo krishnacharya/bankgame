@@ -54,10 +54,23 @@ def plot_game_probability_comparison(game_results, titles=None, figsize=(15, 10)
             gamma = gammas[gamma_idx]
             tau = taus[tau_idx]
             
-            ax.plot(time_steps, p_b1[:, action], 
+            # Get the probability array for this action
+            prob_array = p_b1[:, action]
+            
+            # Plot the line
+            line, = ax.plot(time_steps, prob_array, 
                    color=colors[action], 
                    label=f'γ={gamma:.2f}, τ={tau:.2f}',
                    linewidth=2)
+            
+            # Add label if final probability is >= 0.1
+            if prob_array[-1] >= 0.1:
+                ax.text(time_steps[-1], prob_array[-1], 
+                        f'γ={gamma:.2f}\nτ={tau:.2f}', 
+                        color=line.get_color(), 
+                        fontweight='bold',
+                        horizontalalignment='left',
+                        verticalalignment='center')
         
         # Customize each subplot
         ax.set_title(f'Game {idx+1}' if titles is None else titles[idx])
