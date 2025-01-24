@@ -9,6 +9,7 @@ class GameTrueMatrix:
         self.taus = sorted(taus)
         self.A = generate_utility_matrix(gammas=self.gammas, taus=self.taus, c_f=dist.c_f)
         self.dist = dist
+        self.saveget_NE_vertexenum() # saves all NE, numerical algorithm
 
     def run_hedge(self, T:int, p_b1:np.array, p_b2:np.array, eta:float):
         '''
@@ -31,15 +32,51 @@ class GameTrueMatrix:
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
-    def saveget_NE_supportenum(self): # runs support enumeration to get all NE, pure, mixed
+    def find_closest_to_NE(self, p_b1, p_b2): # TODO test
+        """
+        Finds the closest precomputed Nash equilibrium to the given strategies p_b1 (Bank1) and p_b2 (Bank2).
+        
+        Returns:
+        - closest_NE: tuple (NE_b2, NE_b1) corresponding to the closest Nash equilibrium
+        - min_distance: Euclidean distance to the closest NE
+        """
+        strategy_vector = np.concatenate((p_b2, p_b1))  # Bank2 first, then Bank1
+        min_distance = float('inf')
+        closest_NE = None
+        for NE_b2, NE_b1 in self.NE_ve:
+            NE_vector = np.concatenate((NE_b2, NE_b1))  # Concatenate precomputed NE strategies
+            distance = np.linalg.norm(strategy_vector - NE_vector)
+            if distance < min_distance:
+                min_distance = distance
+                closest_NE = (NE_b2, NE_b1)
+        return closest_NE, min_distance
+
+    def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8): # TODO test
+        """
+        Checks if there exists a precomputed Nash equilibrium where each element is within `epsilon` tolerance.
+        
+        Returns:
+        - closest_NE: Set of all NE tuples (NE_b2, NE_b1) satisfying the element-wise condition.
+        - If no NE satisfies the condition, returns an empty set.
+        """
+        strategy_vector = np.concatenate((p_b2, p_b1))  # Concatenate strategies
+        close_NEs = set()
+        for NE_b2, NE_b1 in self.NE_ve:
+            NE_vector = np.concatenate((NE_b2, NE_b1))  # Concatenate NE strategies
+            # Check if all element-wise differences are within epsilon
+            if np.all(np.abs(strategy_vector - NE_vector) <= epsilon):
+                close_NEs.add((tuple(NE_b2),tuple(NE_b1)))  # Store as tuples (immutable)
+        return close_NEs  # Returns a set (empty if no NE is within tolerance)
+
+    def saveget_NE_vertexenum(self):
+        npygame = nash.Game(self.A.T, self.A)  # nashpy first takes the row players matrix, then column players;
+        self.NE_ve = list(npygame.vertex_enumeration())  # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first element is the row player array, second is column player array
+        return self.NE_ve
+
+    def saveget_NE_supportenum(self): # runs support enumeration to get all NE, (Slow)
         npygame = nash.Game(self.A.T, self.A) # nashpy first takes the row players matrix, then column players;
         self.NE_se = list(npygame.support_enumeration()) # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
         return self.NE_se
-    
-    def saveget_NE_vertexenum(self):
-        npygame = nash.Game(self.A.T, self.A)  # nashpy first takes the row players matrix, then column players;
-        self.NE_ve = list(npygame.vertex_enumeration())  # return list of all equilbria, each equilbrium is a tuple of numpy arrays, first row player(Bank2) strat then column player strat (Bank1)
-        return self.NE_ve
 
 class GameFreshEstimate:
     def __init__(self, gammas:list[float], taus: list[float], num_samples:int, dist:Dist):
@@ -150,7 +187,7 @@ class GameTrueMatrix2by2:
         self.eps1 = 0.5 * gammah_taul_1 - gammal_tauh_1
         self.eps2 = gammah_taul_tauh - 0.5 * gammal_tauh_1
         self.c = (gammal_tauh_1 - 2 * gammah_taul_tauh) / (gammah_tauh_1 - gammal_tauh_1 - gammah_taul_tauh)  # useful for mixed NE
-        
+
         self.NE_theory = []
         if self.eps1 > 0 and self.eps2 > 0:  # only 1 symmetric pure NE is (gammah, taul)
             self.NE_theory.append([self.am['tlgh'], self.am['tlgh']])
