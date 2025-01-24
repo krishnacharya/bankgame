@@ -70,18 +70,19 @@ def generate_utility_matrix(gammas, taus, c_f):
         action indexing is of the form
         tau_1, (gamma_1....gamma_n); tau_2 (gamma_1 ...gamma_n); ... ; tau_n (gamma_1 ... gamma_n)
     '''
-    n = len(gammas)
-    size = n * n  # Matrix size based on all possible gamma-tau pairs
+    g = len(gammas)
+    n = len(taus)
+    size =  n*g  # Matrix size based on all possible gamma-tau pairs
     matrix = np.zeros((size, size))
 
     # Helper function to get index for gamma-tau pair
     def get_pair_index(tau_idx, gamma_idx):
-        return tau_idx * n + gamma_idx
+        return tau_idx * g + gamma_idx
 
     # Iterate through all combinations for both banks
-    for g1 in range(n):  # Bank 1 gamma
+    for g1 in range(g):  # Bank 1 gamma
         for t1 in range(n):  # Bank 1 tau
-            for g2 in range(n):  # Bank 2 gamma
+            for g2 in range(g):  # Bank 2 gamma
                 for t2 in range(n):  # Bank 2 tau
                     row = get_pair_index(t2, g2)  # Bank 2's choice
                     col = get_pair_index(t1, g1)  # Bank 1's choice
