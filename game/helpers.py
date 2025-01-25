@@ -62,6 +62,21 @@ from scipy.integrate import quad
 #         result, _ = quad(integrand, tau_a, tau_b)
 #         return result
 
+def single_sample_from_simplex(dimension) -> np.array:
+    '''
+    Sample a SINGLE user from the probability simplex of dimension=dimension \sum_j x_j = 1
+    shape (dim=#of actions, )
+    '''
+    #unifrom sampling form the probability simplex
+    #reference : https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex
+    return np.diff([0] + sorted(np.random.uniform(size=dimension-1)) + [1])
+
+def sample_simplex_profile(dimension, num_banks = 2) -> np.array:
+    '''
+        each row in the returned is a vector on the probability simplex
+    '''
+    return np.array([single_sample_from_simplex(dimension=dimension) for _ in range(num_banks)]) # shape (2,d)
+
 def generate_utility_matrix(gammas, taus, c_f):
     '''
         Return utility matrix for bank1, column index represents bank1's strategy, row index represents bank2's strat

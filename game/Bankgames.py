@@ -32,24 +32,45 @@ class GameTrueMatrix:
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
-    def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
+    def get_closest_eucliedean_NE(self, p_b1, p_b2):
         """
-        p_b1 bank 1's stategy 
-        p_b2 bank 2's stategy
+        p_b1: Bank 1's strategy (numpy array)
+        p_b2: Bank 2's strategy (numpy array)
 
-        Checks if there exists a Nash equilibrium (of the normal formal game) where each element is within `epsilon` tolerance.
+        Finds the closest Nash equilibrium (NE) based on L2 distance.
         
         Returns:
-        - closest_NE: Set of all NE tuples (NE_b2, NE_b1) satisfying the element-wise condition.
-        - If no NE satisfies the condition, returns an empty set.
+        - The closest NE (NE_b1, NE_b2) in terms of Euclidean distance, the corresponding sum of distance of ||NE_b1-p_b1||_2 + ||NE_b2-p_b2||_2
         """
-        profile = np.concatenate((p_b2, p_b1))
-        close_NEs = []
+        closest_NE = None
+        min_distance = float("inf")
         for NE_b2, NE_b1 in self.NE_ve:
-            NE_vector = np.concatenate((NE_b2, NE_b1))
-            if np.allclose(profile, NE_vector, atol=epsilon):
-                close_NEs.append((NE_b2, NE_b1)) # tuple of numpy arrays
-        return close_NEs  # Returns a list (empty if no NE is within tolerance)
+            dist_b1 = np.linalg.norm(p_b1 - NE_b1) # Compute L2 distances separately for each bank to NE strat
+            dist_b2 = np.linalg.norm(p_b2 - NE_b2)
+            total_distance = dist_b1 + dist_b2
+            if total_distance < min_distance:
+                min_distance = total_distance
+                closest_NE = (NE_b2, NE_b1)  # Store the closest NE
+        return closest_NE, total_distance
+
+    # def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
+    #     """
+    #     p_b1 bank 1's stategy
+    #     p_b2 bank 2's stategy
+
+    #     Checks if there exists a Nash equilibrium (of the normal formal game) where each element is within `epsilon` tolerance.
+
+    #     Returns:
+    #     - closest_NE: Set of all NE tuples (NE_b2, NE_b1) satisfying the element-wise condition.
+    #     - If no NE satisfies the condition, returns an empty set.
+    #     """
+    #     profile = np.concatenate((p_b2, p_b1))
+    #     close_NEs = []
+    #     for NE_b2, NE_b1 in self.NE_ve:
+    #         NE_vector = np.concatenate((NE_b2, NE_b1))
+    #         if np.allclose(profile, NE_vector, atol=epsilon):
+    #             close_NEs.append((NE_b2, NE_b1)) # tuple of numpy arrays
+    #     return close_NEs  # Returns a list (empty if no NE is within tolerance)
 
     def saveget_NE_vertexenum(self):
         npygame = nash.Game(self.A.T, self.A)  # nashpy first takes the row players matrix, then column players;
@@ -138,7 +159,7 @@ class GameMovingAvg:
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
-class GameTrueMatrix2by2:
+class GameTrueMatrix2by2: # TODO change name
     '''
         Special case of the GameTrueMatrix for 2 gammas and 2 taus, for which we have theoretical characterization for all NE
     '''
@@ -191,25 +212,47 @@ class GameTrueMatrix2by2:
                                    [0, self.c, 1 - self.c, 0]])
         else:
             raise Exception  # anyone of them exactly zero?
-        
-    def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
-        """
-        p_b1 bank 1's stategy 
-        p_b2 bank 2's stategy
 
-        Checks if there exists a Nash equilibrium (of the normal formal game) where each element is within `epsilon` tolerance.
+    def get_closest_eucliedean_NE(self, p_b1, p_b2):
+        """
+        p_b1: Bank 1's strategy (numpy array)
+        p_b2: Bank 2's strategy (numpy array)
+
+        Finds the closest Nash equilibrium (NE) based on L2 distance.
         
         Returns:
-        - closest_NE: Set of all NE tuples (NE_b2, NE_b1) satisfying the element-wise condition.
-        - If no NE satisfies the condition, returns an empty set.
+        - The closest NE (NE_b1, NE_b2) in terms of Euclidean distance, the corresponding sum of distance of ||NE_b1-p_b1||_2 + ||NE_b2-p_b2||_2
         """
-        profile = np.concatenate((p_b2, p_b1))
-        close_NEs = []
+        closest_NE = None
+        min_distance = float("inf")
         for NE_b2, NE_b1 in self.NE_se:
-            NE_vector = np.concatenate((NE_b2, NE_b1))
-            if np.allclose(profile, NE_vector, atol=epsilon):
-                close_NEs.append((NE_b2, NE_b1)) # tuple of numpy arrays
-        return close_NEs  # Returns a list (empty if no NE is within tolerance)
+            assert p_b1.shape == NE_b1.shape == p_b2.shape == NE_b2.shape
+            dist_b1 = np.linalg.norm(p_b1 - NE_b1) # Compute L2 distances separately for each bank to NE strat
+            dist_b2 = np.linalg.norm(p_b2 - NE_b2)
+            total_distance = dist_b1 + dist_b2
+            if total_distance < min_distance:
+                min_distance = total_distance
+                closest_NE = (NE_b1, NE_b2)  # Store the closest NE bank2 then bank1
+        return closest_NE, min_distance
+
+    # def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
+    #     """
+    #     p_b1 bank 1's stategy
+    #     p_b2 bank 2's stategy
+
+    #     Checks if there exists a Nash equilibrium (of the normal formal game) where each element is within `epsilon` tolerance.
+
+    #     Returns:
+    #     - (True, closes_NE list ) if there is a NE is within the element wise tolerance
+    #     - (False, []) if there is no NE within element wise tolerance
+    #     """
+    #     profile = np.concatenate((p_b2, p_b1))
+    #     close_NEs = []
+    #     for NE_b2, NE_b1 in self.NE_se:
+    #         NE_vector = np.concatenate((NE_b2, NE_b1))
+    #         if np.allclose(profile, NE_vector, atol=epsilon):
+    #             close_NEs.append((NE_b2, NE_b1)) # tuple of numpy arrays
+    #     return len(close_NEs) >= 1, close_NEs  # Returns a list (empty if no NE is within tolerance)
 
     def saveget_NE_supportenum(self):  # runs support enumeration to get all NE, pure, mixed
         '''
