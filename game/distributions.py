@@ -60,29 +60,19 @@ class TruncatedGaussian(Dist):
 
 
 class PiecewiseUniform(Dist):
-    def __init__(self):
-        self.ga_l = 0.5
-        self.ga_h = 0.6
+    def __init__(self, ga_l=0.5, ga_h=0.6):
+        self.ga_l = ga_l
+        self.ga_h = ga_h
         self.tau_l = 1 / (2 + self.ga_h)
         self.tau_h = 1 / (2 + self.ga_l)
 
     def get_samples(self, num_samples: int):
         bins = np.array([0, self.tau_l, self.tau_h, 1])
-        probs = np.array([
-            0.01 / self.tau_l, 0.95 / (self.tau_h - self.tau_l),
-            0.049 / (1 - self.tau_h)
-        ])
-
-        # Normalize probabilities
+        probs = np.array([0.01 / self.tau_l, 0.95 / (self.tau_h - self.tau_l),0.049 / (1 - self.tau_h)])
         probs /= probs.sum()
-
-        # Select bins
         samples = np.random.choice([0, 1, 2], size=num_samples, p=probs)
-
-        # Generate uniform samples within the selected bins
         lower_bounds = bins[samples]
         upper_bounds = bins[samples + 1]
-
         return np.random.uniform(lower_bounds, upper_bounds)
 
     def c_f(self, gamma, tau_a, tau_b):
