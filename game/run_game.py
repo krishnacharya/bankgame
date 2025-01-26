@@ -24,16 +24,16 @@ def run_across_initializations(gtm: GameTrueMatrix2by2, save_dest:str, num_start
     gf1 = GameFreshEstimate(gammas=gtm.gammas, taus=gtm.taus, num_samples=1, dist=gtm.dist)
     gmv1 = GameMovingAvg(gammas=gtm.gammas, taus=gtm.taus, num_samples=1, dist=gtm.dist)
 
-    gf10 = GameFreshEstimate(gammas=gtm.gammas, taus=gtm.taus, num_samples=10, dist=gtm.dist)
-    gmv10 = GameMovingAvg(gammas=gtm.gammas, taus=gtm.taus, num_samples=10, dist=gtm.dist)
+    # gf10 = GameFreshEstimate(gammas=gtm.gammas, taus=gtm.taus, num_samples=10, dist=gtm.dist)
+    # gmv10 = GameMovingAvg(gammas=gtm.gammas, taus=gtm.taus, num_samples=10, dist=gtm.dist)
 
-    gf20 = GameFreshEstimate(gammas=gtm.gammas, taus=gtm.taus, num_samples=20, dist=gtm.dist)
-    gmv20 = GameMovingAvg(gammas=gtm.gammas, taus=gtm.taus, num_samples=20, dist=gtm.dist)
+    # gf20 = GameFreshEstimate(gammas=gtm.gammas, taus=gtm.taus, num_samples=20, dist=gtm.dist)
+    # gmv20 = GameMovingAvg(gammas=gtm.gammas, taus=gtm.taus, num_samples=20, dist=gtm.dist)
     res = []
     with tqdm(total=len(start_profiles), mininterval=5) as pbar:
         for profile in start_profiles:
             s1, s2 = profile[0], profile[1]  # Each is a numpy array of shape (n^2,)
-            di = {'Bank1_start': s1, 'Bank2_start': s2, 'eps1': gtm.eps1, 'eps2': gtm.eps2}
+            di = {'Bank1_start': s1, 'Bank2_start': s2}
 
             # Run hedge on each of the games and get the strategy profiles over time
             bank1_gtm, bank2_gtm, _, _ = gtm.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)  # Game true matrix
@@ -46,18 +46,33 @@ def run_across_initializations(gtm: GameTrueMatrix2by2, save_dest:str, num_start
             # bank1_gmv10, bank2_gmv10, _, _ = gmv10.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)
             # bank1_gmv20, bank2_gmv20, _, _ = gmv20.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)
 
-            # Check convergence of last iterate to NE for each of the games
-            di['closestNE_knownmat'], di['closestNEdist_knownmat'] = gtm.get_closest_eucliedean_NE(p_b1=bank1_gtm[-1], p_b2=bank2_gtm[-1])
+            # Known Matrix Case
+            di['Bank1iter_knownmat'] = bank1_gtm
+            di['Bank2iter_knownmat'] = bank2_gtm
+            di['closestNE_knownmat'], di['closestNEdist_knownmat'] = gtm.get_closest_euclidean_NE(p_b1=bank1_gtm[-1], p_b2=bank2_gtm[-1])
+            di['closestNEdist_knownmat_b1'] = np.linalg.norm(bank1_gtm - di['closestNE_knownmat'][0], axis=1)  # Distance for each iterate
+            di['closestNEdist_knownmat_b2'] = np.linalg.norm(bank2_gtm - di['closestNE_knownmat'][1], axis=1)
 
-            di['closestNE_fresh1'], di['closestNEdist_fresh1'] = gtm.get_closest_eucliedean_NE(p_b1=bank1_gf1[-1], p_b2=bank2_gf1[-1])
+            # FreshMatrix1sample Case
+            di['Bank1iter_fresh1'] = bank1_gf1
+            di['Bank2iter_fresh1'] = bank2_gf1
+            di['closestNE_fresh1'], di['closestNEdist_fresh1'] = gtm.get_closest_euclidean_NE(p_b1=bank1_gf1[-1], p_b2=bank2_gf1[-1])
+            di['closestNEdist_fresh1_b1'] = np.linalg.norm(bank1_gf1 - di['closestNE_fresh1'][0], axis=1)  # Distance for each iterate
+            di['closestNEdist_fresh1_b2'] = np.linalg.norm(bank2_gf1 - di['closestNE_fresh1'][1], axis=1)
+
+            # MovingAverage1 sample Case
+            di['Bank1iter_moving1'] = bank1_gmv1
+            di['Bank2iter_moving1'] = bank2_gmv1
+            di['closestNE_moving1'], di['closestNEdist_moving1'] = gtm.get_closest_euclidean_NE(p_b1=bank1_gmv1[-1], p_b2=bank2_gmv1[-1])
+            di['closestNEdist_moving1_b1'] = np.linalg.norm(bank1_gmv1 - di['closestNE_moving1'][0], axis=1)  # Distance for each iterate
+            di['closestNEdist_moving1_b2'] = np.linalg.norm(bank2_gmv1 - di['closestNE_moving1'][1], axis=1)
+
             # di['converged_fresh_10'], _  = gtm.get_closest_elementwise_NE(p_b1=bank1_gf10[-1], p_b2=bank2_gf10[-1])
             # di['converged_fresh_20'], _ = gtm.get_closest_elementwise_NE(p_b1=bank1_gf20[-1], p_b2=bank2_gf20[-1])
-
-            di['closestNE_fresh1'], di['closestNEdist_moving1']  = gtm.get_closest_eucliedean_NE(p_b1=bank1_gmv1[-1], p_b2=bank2_gmv1[-1])
             # di['converged_moving_10'], _ = gtm.get_closest_elementwise_NE(p_b1=bank1_gmv10[-1], p_b2=bank2_gmv10[-1])
             # di['converged_moving_20'], _ = gtm.get_closest_elementwise_NE(p_b1=bank1_gmv20[-1], p_b2=bank2_gmv20[-1])
             pbar.update(1)
             res.append(di)
     df = pd.DataFrame(res)
     df.to_pickle(save_dest)
-
+    return df

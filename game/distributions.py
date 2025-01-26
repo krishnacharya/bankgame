@@ -66,23 +66,28 @@ class PiecewiseUniform(Dist):
         self.tau_l = 1 / (2 + self.ga_h)
         self.tau_h = 1 / (2 + self.ga_l)
 
-    def get_samples(self, num_samples: int):
+        # bins for piecewise uniform
+        self.p_bin1 = 0.01
+        self.p_bin2 = 0.95
+        self.p_bin3 = 1 - self.p_bin1 - self.p_bin2
+
+    def get_samples(self, num_samples):
         bins = np.array([0, self.tau_l, self.tau_h, 1])
-        probs = np.array([0.01 / self.tau_l, 0.95 / (self.tau_h - self.tau_l),0.049 / (1 - self.tau_h)])
-        probs /= probs.sum()
-        samples = np.random.choice([0, 1, 2], size=num_samples, p=probs)
-        lower_bounds = bins[samples]
-        upper_bounds = bins[samples + 1]
+        probs = np.array([self.p_bin1, self.p_bin2, self.p_bin3])
+        # Sample bin indices according to probabilities
+        bin_indices = np.random.choice([0, 1, 2], size=num_samples, p=probs)
+        lower_bounds = bins[bin_indices]
+        upper_bounds = bins[bin_indices + 1]
         return np.random.uniform(lower_bounds, upper_bounds)
 
     def c_f(self, gamma, tau_a, tau_b):
         def piecewise_uniform_pdf(y):
             if 0 <= y < self.tau_l:
-                return 0.001 / self.tau_l
+                return self.p_bin1 / self.tau_l
             elif self.tau_l <= y < self.tau_h:
-                return 0.95 / (self.tau_h - self.tau_l)
+                return self.p_bin2 / (self.tau_h - self.tau_l)
             elif self.tau_h <= y <= 1:
-                return 0.049 / (1 - self.tau_h)
+                return self.p_bin3 / (1 - self.tau_h)
             else:
                 return 0
 
