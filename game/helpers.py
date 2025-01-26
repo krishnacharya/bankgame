@@ -238,8 +238,8 @@ def search_eps_signs(dist = 'truncated_gaussian', sigma_value = 0.2, mu_values =
     else:
         raise ValueError(f"Distribution {dist} not supported")
     # Print results
-    for sign_pair, values in found_cases.items():
-        gamma_l, gamma_h, mu, sigma, eps1, eps2 = values[0]
-        print(f"Sign: {sign_pair}, γ_l: {gamma_l:.2f}, γ_h: {gamma_h:.2f}, μ: {mu:.2f}, σ: {sigma:.2f}, eps1: {eps1:.4f}, eps2: {eps2:.4f}")
+    #for sign_pair, values in found_cases.items():
+    #    gamma_l, gamma_h, mu, sigma, eps1, eps2 = values[0]
+    #    print(f"Sign: {sign_pair}, γ_l: {gamma_l:.2f}, γ_h: {gamma_h:.2f}, μ: {mu:.2f}, σ: {sigma:.2f}, eps1: {eps1:.4f}, eps2: {eps2:.4f}")
     
     return found_cases
