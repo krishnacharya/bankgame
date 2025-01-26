@@ -32,7 +32,7 @@ class GameTrueMatrix:
             b2_record.append(p_b2)
         return np.array(b1_record), np.array(b2_record), self.gammas, self.taus
 
-    def get_closest_eucliedean_NE(self, p_b1, p_b2):
+    def get_closest_euclidean_NE(self, p_b1, p_b2):
         """
         p_b1: Bank 1's strategy (numpy array)
         p_b2: Bank 2's strategy (numpy array)
@@ -213,7 +213,7 @@ class GameTrueMatrix2by2: # TODO change name
         else:
             raise Exception  # anyone of them exactly zero?
 
-    def get_closest_eucliedean_NE(self, p_b1, p_b2):
+    def get_closest_euclidean_NE(self, p_b1, p_b2):
         """
         p_b1: Bank 1's strategy (numpy array)
         p_b2: Bank 2's strategy (numpy array)
@@ -225,14 +225,14 @@ class GameTrueMatrix2by2: # TODO change name
         """
         closest_NE = None
         min_distance = float("inf")
-        for NE_b2, NE_b1 in self.NE_se:
+        for NE_b2, NE_b1 in self.NE_se: # nashpy outputs row strat first so this is used
             assert p_b1.shape == NE_b1.shape == p_b2.shape == NE_b2.shape
             dist_b1 = np.linalg.norm(p_b1 - NE_b1) # Compute L2 distances separately for each bank to NE strat
             dist_b2 = np.linalg.norm(p_b2 - NE_b2)
             total_distance = dist_b1 + dist_b2
             if total_distance < min_distance:
                 min_distance = total_distance
-                closest_NE = (NE_b1, NE_b2)  # Store the closest NE bank2 then bank1
+                closest_NE = (NE_b1, NE_b2)  # Bank 1 then Bank2
         return closest_NE, min_distance
 
     # def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
