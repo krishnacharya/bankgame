@@ -46,14 +46,14 @@ def run_across_initializations(gtm: GameTrueMatrix2by2, save_dest:str, num_start
             # bank1_gmv10, bank2_gmv10, _, _ = gmv10.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)
             # bank1_gmv20, bank2_gmv20, _, _ = gmv20.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)
 
-            # Check convergence of last iterate to NE for each of the games
+            # Check convergence of last iterate to NE for each of the games # TODO check for typos
             di['closestNE_knownmat'], di['closestNEdist_knownmat'] = gtm.get_closest_eucliedean_NE(p_b1=bank1_gtm[-1], p_b2=bank2_gtm[-1])
 
             di['closestNE_fresh1'], di['closestNEdist_fresh1'] = gtm.get_closest_eucliedean_NE(p_b1=bank1_gf1[-1], p_b2=bank2_gf1[-1])
             # di['converged_fresh_10'], _  = gtm.get_closest_elementwise_NE(p_b1=bank1_gf10[-1], p_b2=bank2_gf10[-1])
             # di['converged_fresh_20'], _ = gtm.get_closest_elementwise_NE(p_b1=bank1_gf20[-1], p_b2=bank2_gf20[-1])
 
-            di['closestNE_fresh1'], di['closestNEdist_moving1']  = gtm.get_closest_eucliedean_NE(p_b1=bank1_gmv1[-1], p_b2=bank2_gmv1[-1])
+            di['closestNE_moving1'], di['closestNEdist_moving1']  = gtm.get_closest_eucliedean_NE(p_b1=bank1_gmv1[-1], p_b2=bank2_gmv1[-1])
             # di['converged_moving_10'], _ = gtm.get_closest_elementwise_NE(p_b1=bank1_gmv10[-1], p_b2=bank2_gmv10[-1])
             # di['converged_moving_20'], _ = gtm.get_closest_elementwise_NE(p_b1=bank1_gmv20[-1], p_b2=bank2_gmv20[-1])
             pbar.update(1)
