@@ -10,6 +10,7 @@ class GameTrueMatrix:
         self.A = generate_utility_matrix(gammas=self.gammas, taus=self.taus, c_f=dist.c_f)
         self.dist = dist
         self.saveget_NE_vertexenum() # saves all NE, numerical algorithm
+        self.instance_name = self.dist.name + str(self.gammas) # this defines a unique utility matrix
 
     def run_hedge(self, T:int, p_b1:np.array, p_b2:np.array, eta:float):
         '''
@@ -52,25 +53,6 @@ class GameTrueMatrix:
                 min_distance = total_distance
                 closest_NE = (NE_b2, NE_b1)  # Store the closest NE
         return closest_NE, total_distance
-
-    # def get_closest_elementwise_NE(self, p_b1, p_b2, epsilon=1e-8):
-    #     """
-    #     p_b1 bank 1's stategy
-    #     p_b2 bank 2's stategy
-
-    #     Checks if there exists a Nash equilibrium (of the normal formal game) where each element is within `epsilon` tolerance.
-
-    #     Returns:
-    #     - closest_NE: Set of all NE tuples (NE_b2, NE_b1) satisfying the element-wise condition.
-    #     - If no NE satisfies the condition, returns an empty set.
-    #     """
-    #     profile = np.concatenate((p_b2, p_b1))
-    #     close_NEs = []
-    #     for NE_b2, NE_b1 in self.NE_ve:
-    #         NE_vector = np.concatenate((NE_b2, NE_b1))
-    #         if np.allclose(profile, NE_vector, atol=epsilon):
-    #             close_NEs.append((NE_b2, NE_b1)) # tuple of numpy arrays
-    #     return close_NEs  # Returns a list (empty if no NE is within tolerance)
 
     def saveget_NE_vertexenum(self):
         npygame = nash.Game(self.A.T, self.A)  # nashpy first takes the row players matrix, then column players;
