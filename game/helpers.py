@@ -2,6 +2,11 @@ import numpy as np
 from fractions import Fraction
 from scipy.stats import truncnorm, beta
 from scipy.integrate import quad
+from itertools import product
+from game.Bankgames import *
+from game.plotting import *
+from game.distributions import TruncatedGaussian, Uniform, PiecewiseUniform
+from tqdm import tqdm
 
 # def c_f(gamma, tau_a, tau_b, c = 2):
 
@@ -176,3 +181,65 @@ def matrix_from_samples(y_samples, gammas, taus):
                         for y in y_samples
                     ])
     return matrix
+
+
+def search_eps_signs(dist = 'truncated_gaussian', sigma_value = 0.2, mu_values = [0.1, 0.2, 0.6, 0.8, 0.9]):
+    from game.Bankgames import GameTrueMatrix2by2
+    if dist == 'truncated_gaussian':
+        gamma_values = np.linspace(0.1, 1.0, 10)  # Choosing 5 values for gamma
+        mu_values = mu_values
+        sigma_values = [sigma_value]
+    elif dist == 'piecewise_uniform':
+        gamma_values = np.linspace(0.01, 0.99, 100)
+    else:
+        raise ValueError(f"Distribution {dist} not supported")
+
+    found_cases = {}
+    if dist == 'truncated_gaussian':
+        # Iterate over all possible combinations
+        for gamma_l, gamma_h, mu, sigma in product(gamma_values, gamma_values, mu_values, sigma_values):
+            if gamma_l >= gamma_h:  # Ensure gamma_l < gamma_h
+                continue
+            
+            taus = sorted([1 / (2 + gamma) for gamma in [gamma_l, gamma_h]])
+            tg = TruncatedGaussian(mu=mu, sigma=sigma)
+            gtm = GameTrueMatrix2by2(gammas=[gamma_l, gamma_h], taus=taus, dist=tg)
+            
+            eps1, eps2 = gtm.eps1, gtm.eps2
+            sign_pair = (np.sign(eps1), np.sign(eps2))
+
+            # Store unique cases for each sign combination
+            if sign_pair not in found_cases:
+                found_cases[sign_pair] = [(gamma_l, gamma_h, mu, sigma, eps1, eps2)]
+            else:
+                found_cases[sign_pair].append((gamma_l, gamma_h, mu, sigma, eps1, eps2))
+
+            # Stop early if we found all sign cases
+            if len(found_cases) == 4:
+                break
+    elif dist == 'piecewise_uniform':
+        for gamma_l, gamma_h in tqdm(product(gamma_values, gamma_values)):
+            if gamma_l >= gamma_h:  # Ensure gamma_l < gamma_h
+                continue
+            taus = sorted([1 / (2 + gamma) for gamma in [gamma_l, gamma_h]])
+            puf = PiecewiseUniform(ga_l = gamma_l, ga_h = gamma_h)
+            gtm = GameTrueMatrix2by2(gammas=[gamma_l, gamma_h], taus=taus, dist=puf)
+            
+            eps1, eps2 = gtm.eps1, gtm.eps2
+            sign_pair = (np.sign(eps1), np.sign(eps2))
+
+            # Store unique cases for each sign combination
+            if sign_pair not in found_cases:
+                found_cases[sign_pair] = (gamma_l, gamma_h, eps1, eps2)
+
+            # Stop early if we found all sign cases
+            if len(found_cases) == 4:
+                break
+    else:
+        raise ValueError(f"Distribution {dist} not supported")
+    # Print results
+    #for sign_pair, values in found_cases.items():
+    #    gamma_l, gamma_h, mu, sigma, eps1, eps2 = values[0]
+    #    print(f"Sign: {sign_pair}, γ_l: {gamma_l:.2f}, γ_h: {gamma_h:.2f}, μ: {mu:.2f}, σ: {sigma:.2f}, eps1: {eps1:.4f}, eps2: {eps2:.4f}")
+    
+    return found_cases
