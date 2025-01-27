@@ -207,12 +207,13 @@ def search_eps_signs(dist = 'truncated_gaussian', sigma_value = 0.2, mu_values =
             
             eps1, eps2 = gtm.eps1, gtm.eps2
             sign_pair = (np.sign(eps1), np.sign(eps2))
+            pair = (int(sign_pair[0]), int(sign_pair[1]))
 
             # Store unique cases for each sign combination
-            if sign_pair not in found_cases:
-                found_cases[sign_pair] = [(gamma_l, gamma_h, mu, sigma, eps1, eps2)]
+            if pair not in found_cases:
+                found_cases[pair] = [(gamma_l, gamma_h, mu, sigma, eps1, eps2)]
             else:
-                found_cases[sign_pair].append((gamma_l, gamma_h, mu, sigma, eps1, eps2))
+                found_cases[pair].append((gamma_l, gamma_h, mu, sigma, eps1, eps2))
 
             # Stop early if we found all sign cases
             if len(found_cases) == 4:
@@ -227,10 +228,12 @@ def search_eps_signs(dist = 'truncated_gaussian', sigma_value = 0.2, mu_values =
             
             eps1, eps2 = gtm.eps1, gtm.eps2
             sign_pair = (np.sign(eps1), np.sign(eps2))
-
+            pair = (int(sign_pair[0]), int(sign_pair[1]))
             # Store unique cases for each sign combination
             if sign_pair not in found_cases:
-                found_cases[sign_pair] = (gamma_l, gamma_h, eps1, eps2)
+                found_cases[pair] = [(gamma_l, gamma_h)]
+            else:
+                found_cases[pair].append((gamma_l, gamma_h))
 
             # Stop early if we found all sign cases
             if len(found_cases) == 4:
