@@ -180,6 +180,10 @@ class GameTrueMatrix2by2: # TODO change name
         self.save_NE_theory()
         self.saveget_NE_supportenum()
 
+        # add instance name and epsilon sign case
+        self.instance_name = self.dist.name + str(self.gammas) # this defines a unique utility matrix
+        self.eps_case = f"{'+' if self.eps1 > 0 else '-'}{'+' if self.eps2 > 0 else '-'}"
+
     def save_NE_theory(self):
         '''
             analytically characterized NE in the paper depending on epsilon conditions

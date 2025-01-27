@@ -36,6 +36,8 @@ class TruncatedGaussian(Dist):
         self.a, self.b = 0, 1  # Truncation limits
         self.a_scaled = (self.a - mu) / sigma
         self.b_scaled = (self.b - mu) / sigma
+        self.name = f'TG_mu{self.mu}_sigma{self.sigma}'
+
 
     def get_samples(self, num_samples: int):
         return truncnorm.rvs(self.a_scaled,
@@ -61,10 +63,12 @@ class TruncatedGaussian(Dist):
 
 class PiecewiseUniform(Dist):
     def __init__(self, ga_l=0.5, ga_h=0.6):
+        assert ga_l < ga_h
         self.ga_l = ga_l
         self.ga_h = ga_h
         self.tau_l = 1 / (2 + self.ga_h)
         self.tau_h = 1 / (2 + self.ga_l)
+        self.name = f'PUF_{ga_l}_{ga_h}'
 
         # bins for piecewise uniform
         self.p_bin1 = 0.01
