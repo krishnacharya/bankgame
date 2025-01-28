@@ -246,3 +246,19 @@ def search_eps_signs(dist = 'truncated_gaussian', sigma_value = 0.2, mu_values =
     #    print(f"Sign: {sign_pair}, γ_l: {gamma_l:.2f}, γ_h: {gamma_h:.2f}, μ: {mu:.2f}, σ: {sigma:.2f}, eps1: {eps1:.4f}, eps2: {eps2:.4f}")
     
     return found_cases
+
+def are_arrays_equal(arr1_list, arr2, tolerance=1e-5):
+    """
+    Check if arr2 matches any array in arr1_list within the given tolerance.
+    
+    Parameters:
+    arr1_list: List of arrays to compare against
+    arr2: Single array to compare with each array in arr1_list
+    tolerance: Threshold for numerical comparison
+    
+    Returns:
+    bool: True if arr2 matches any array in arr1_list
+    """
+    arr2_clean = np.where(np.abs(arr2) < tolerance, 0, arr2)
+    return any(np.allclose(np.where(np.abs(arr1) < tolerance, 0, arr1), arr2_clean, rtol=tolerance, atol=tolerance)
+               for arr1 in arr1_list)
