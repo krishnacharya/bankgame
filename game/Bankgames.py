@@ -163,8 +163,9 @@ class GameTrueMatrix2by2: # TODO change name
         self.saveget_NE_supportenum()
 
         # add instance name and epsilon sign case
-        self.instance_name = self.dist.name + str(self.gammas) # this defines a unique utility matrix
         self.eps_case = f"{'+' if self.eps1 > 0 else '-'}{'+' if self.eps2 > 0 else '-'}"
+        self.instance_name = self.dist.name + str(self.gammas) + self.eps_case
+
 
     def save_NE_theory(self):
         '''

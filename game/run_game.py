@@ -6,7 +6,7 @@ from tqdm import tqdm
 import pandas as pd
 from pathlib import Path
 
-def run_across_init_2gamma(gtm: GameTrueMatrix2by2, save_dir:Path, num_startprofiles=5, T=10000, eta=0.1, seed=21):
+def run_across_init_2gamma(gtm: GameTrueMatrix2by2, save_dir_full:Path, save_dir_conc:Path, num_startprofiles=5, T=10000, eta=0.1, seed=21):
     '''
         This is for the n = 2 gammas case
 
@@ -76,13 +76,13 @@ def run_across_init_2gamma(gtm: GameTrueMatrix2by2, save_dir:Path, num_startprof
             res.append(di)
             res_conc.append(di_conc)
     df = pd.DataFrame(res)
-    df.to_pickle(str(save_dir / (gtm.instance_name + '_full.pkl')))
+    df.to_pickle(str(save_dir_full / (gtm.instance_name + '_full.pkl')))
     df_conc = pd.DataFrame(res_conc)
-    df_conc.to_pickle(str(save_dir / (gtm.instance_name + '_concise.pkl')))
+    df_conc.to_pickle(str(save_dir_conc / (gtm.instance_name + '_concise.pkl')))
     return df, df_conc
 
 
-def run_across_init_largegamma(gtm: GameTrueMatrix, save_dir:Path, num_startprofiles=5, T=10000, eta=0.1, seed=21):
+def run_across_init_largegamma(gtm: GameTrueMatrix, save_dir_full:Path, save_dir_conc:Path, num_startprofiles=5, T=10000, eta=0.1, seed=21):
     '''
         This is for the n > 2 gammas case
 
@@ -92,6 +92,9 @@ def run_across_init_largegamma(gtm: GameTrueMatrix, save_dir:Path, num_startprof
             - on the true matrix 
             - on the fresh estimation each time
             - on the moving average version
+
+        save_dir_full for the large dataframe that stores each iterate
+        save_dir_conc for the concise dataframe
     '''
     n = len(gtm.gammas)
     np.random.seed(seed=seed)
@@ -140,7 +143,7 @@ def run_across_init_largegamma(gtm: GameTrueMatrix, save_dir:Path, num_startprof
             res.append(di)
             res_conc.append(di_conc)
     df = pd.DataFrame(res)
-    df.to_pickle(str(save_dir / (gtm.instance_name + '_full.pkl')))
+    df.to_pickle(str(save_dir_full / (gtm.instance_name + '_full.pkl')))
     df_conc = pd.DataFrame(res_conc)
-    df_conc.to_pickle(str(save_dir / (gtm.instance_name + '_concise.pkl')))
+    df_conc.to_pickle(str(save_dir_conc / (gtm.instance_name + '_concise.pkl')))
     return df, df_conc
