@@ -1,6 +1,7 @@
 import argparse
 from game.run_game import run_across_init_2gamma
 from game.Bankgames import *
+from game.distributions import TruncatedGaussian
 from pathlib import Path
 from utils.project_dirs import saved_df_2gamma
 
@@ -11,7 +12,7 @@ def main():
     parser.add_argument('--gamma_l', type = float, help = 'has to be in (0,1)')
     parser.add_argument('--gamma_h', type = float, help = 'has to be in (0,1)')
     parser.add_argument('--horizon', type = int, help='Hedge horizon', default = 100000) # 100k steps of hedge
-    parser.add_argument('--eta', type = int, help='Hedge step size', default = 0.1)
+    parser.add_argument('--eta', type = float, help='Hedge step size', default = 0.1)
     parser.add_argument('--num_startprofiles', type = int, help='Number of random initializations for both banks', default = 5)
     args = parser.parse_args()
 
@@ -28,7 +29,6 @@ def main():
     epsigns = f'sign{gtm.eps_case}'
     save_dir = saved_df_2gamma(epsigns=epsigns)
 
-    # ADD asserts
     print(f'TG mean is {args.mu}')
     print(f'TG sigma is {args.sigma}')
     print(f'gamma_l, gamma_h are {args.gamma_l}, {args.gamma_h}')
