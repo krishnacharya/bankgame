@@ -31,9 +31,9 @@ def main():
     print(f'TG sigma is {args.sigma}')
     print(f'gamma_l, gamma_h are {args.gamma_l}, {args.gamma_h}')
     print(tg.name, gtm.instance_name, gtm.eps_case)
-    save_dir_full = saved_df_n_dist_full(n=2, distribution = 'truncated_gaussian')
-    save_dir_conc = saved_df_n_dist_concise(n=2, distribution = 'truncated_gaussian')
-    df, df_conc = run_across_init_2gamma(gtm=gtm, save_dir_full = save_dir_full, save_dir_conc = save_dir_conc, num_startprofiles=args.num_startprofiles, T=args.horizon, eta = args.eta)
+    save_dir_full = saved_df_n_dist_full_T(n=2, distribution = 'truncated_gaussian', T=args.horizon)
+    save_dir_concise = saved_df_n_dist_concise_T(n=2, distribution = 'truncated_gaussian', T = args.horizon)
+    df, df_conc = run_across_init_2gamma(gtm=gtm, save_dir_full = save_dir_full, save_dir_conc = save_dir_concise, num_startprofiles=args.num_startprofiles, T=args.horizon, eta = args.eta)
     
 if __name__ == '__main__':
     main()
