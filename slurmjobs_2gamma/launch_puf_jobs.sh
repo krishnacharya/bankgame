@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J Puf_2gam
-#SBATCH --array=1-2
+#SBATCH --array=1-36
 #SBATCH -A gts-jziani3
 #SBATCH --mem-per-cpu=2G
 #SBATCH --time=2:00:00
@@ -13,12 +13,12 @@ module load anaconda3/2022.05.0.1
 conda activate bankgame
 
 n=$SLURM_ARRAY_TASK_ID
-iteration=`sed -n "${n} p" puf_instances.csv`  # Get n-th line (1-indexed) of the file
+iteration=`sed -n "${n} p" puf_instances_slurm.csv`  # Get n-th line (1-indexed) of the file
 echo "parameters for iteration: ${iteration}"
 
 gamma_l=$(echo ${iteration} | cut -d "," -f 1)
 gamma_h=$(echo ${iteration} | cut -d "," -f 2)
-horizon=10000
+horizon=100000
 eta=0.1
 num_startprofiles=5
 

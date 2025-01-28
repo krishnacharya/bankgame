@@ -3,7 +3,7 @@ from game.run_game import run_across_init_2gamma
 from game.Bankgames import *
 from game.distributions import TruncatedGaussian
 from pathlib import Path
-from utils.project_dirs import saved_df_2gamma
+from utils.project_dirs import *
 
 def main():
     parser = argparse.ArgumentParser(description='get experiment configs')
@@ -22,19 +22,18 @@ def main():
 
     gammas = sorted([args.gamma_l, args.gamma_h])
     taus = sorted([1.0/(2+gamma) for gamma in gammas])
-
     tg = TruncatedGaussian(mu = args.mu, sigma = args.sigma)
     gtm = GameTrueMatrix2by2(gammas=gammas, taus=taus, dist=tg)
 
     epsigns = f'sign{gtm.eps_case}'
-    save_dir = saved_df_2gamma(epsigns=epsigns)
 
     print(f'TG mean is {args.mu}')
     print(f'TG sigma is {args.sigma}')
     print(f'gamma_l, gamma_h are {args.gamma_l}, {args.gamma_h}')
     print(tg.name, gtm.instance_name, gtm.eps_case)
-    
-    df, df_conc = run_across_init_2gamma(gtm=gtm, save_dir=save_dir, num_startprofiles=args.num_startprofiles, T=args.horizon, eta = args.eta)
+    save_dir_full = saved_df_n_dist_full(n=2, distribution = 'truncated_gaussian')
+    save_dir_conc = saved_df_n_dist_concise(n=2, distribution = 'truncated_gaussian')
+    df, df_conc = run_across_init_2gamma(gtm=gtm, save_dir_full = save_dir_full, save_dir_conc = save_dir_conc, num_startprofiles=args.num_startprofiles, T=args.horizon, eta = args.eta)
     
 if __name__ == '__main__':
     main()

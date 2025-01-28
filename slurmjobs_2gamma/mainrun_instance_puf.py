@@ -3,7 +3,7 @@ from game.run_game import run_across_init_2gamma
 from game.Bankgames import *
 from game.distributions import PiecewiseUniform
 from pathlib import Path
-from utils.project_dirs import saved_df_2gamma
+from utils.project_dirs import *
 
 def main():
     parser = argparse.ArgumentParser(description='get experiment configs')
@@ -23,12 +23,12 @@ def main():
     gtm = GameTrueMatrix2by2(gammas=gammas, taus=taus, dist=puf)
 
     epsigns = f'sign{gtm.eps_case}'
-    save_dir = saved_df_2gamma(epsigns=epsigns)
 
     print(f'gamma_l, gamma_h are {args.gamma_l}, {args.gamma_h}')
     print(puf.name, gtm.instance_name, gtm.eps_case)
-    
-    df, df_conc = run_across_init_2gamma(gtm=gtm, save_dir=save_dir, num_startprofiles=args.num_startprofiles, T=args.horizon, eta = args.eta)
+    save_dir_full = saved_df_n_dist_full(n=2, distribution = 'piecewise_uniform')
+    save_dir_conc = saved_df_n_dist_concise(n=2, distribution = 'piecewise_uniform')
+    df, df_conc = run_across_init_2gamma(gtm=gtm, save_dir_full = save_dir_full, save_dir_conc = save_dir_conc, num_startprofiles=args.num_startprofiles, T=args.horizon, eta = args.eta)
     
 if __name__ == '__main__':
     main()
