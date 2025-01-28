@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J Puf_2gam
-#SBATCH --array=1-3
+#SBATCH --array=1-36
 #SBATCH -A gts-jziani3
 #SBATCH --mem-per-cpu=2G
 #SBATCH --time=2:00:00
@@ -18,7 +18,7 @@ echo "parameters for iteration: ${iteration}"
 
 gamma_l=$(echo ${iteration} | cut -d "," -f 1)
 gamma_h=$(echo ${iteration} | cut -d "," -f 2)
-horizon=1000
+horizon=10000
 eta=0.1
 num_startprofiles=5
 

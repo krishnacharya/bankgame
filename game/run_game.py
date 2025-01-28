@@ -33,9 +33,11 @@ def run_across_init_2gamma(gtm: GameTrueMatrix2by2, save_dir_full:Path, save_dir
         for profile in start_profiles:
             s1, s2 = profile[0], profile[1]  # Each is a numpy array of shape (n^2,)
             di = {'instance_name': gtm.instance_name, 'dist': gtm.dist.name, 'gammas': gtm.gammas, 'taus':gtm.taus, \
-                  'eps_case' : gtm.eps_case, 'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T}
+                  'eps_case' : gtm.eps_case, 'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T, 'NE_theory':gtm.NE_theory, 'NE_nashpy':gtm.NE_se, \
+                  'numberof_NE': len(gtm.NE_se)}
             di_conc = {'instance_name': gtm.instance_name, 'dist':gtm.dist.name, 'gammas': gtm.gammas, 'taus':gtm.taus, \
-                     'eps_case': gtm.eps_case, 'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T} # concise dictionary, stores only necessary stuff for table 1
+                     'eps_case': gtm.eps_case, 'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T, 'NE_theory':gtm.NE_theory, 'NE_nashpy':gtm.NE_se, \
+                    'numberof_NE': len(gtm.NE_se)} # concise dictionary, stores only necessary stuff for table 1
             # Run hedge on each of the games and get the strategy profiles over time
             bank1_gtm, bank2_gtm, _, _ = gtm.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)  # Game true matrix
             bank1_gf1, bank2_gf1, _, _ = gf1.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)  # Game fresh estimate
@@ -106,11 +108,11 @@ def run_across_init_largegamma(gtm: GameTrueMatrix, save_dir_full:Path, save_dir
     res_conc = [] # concise
     with tqdm(total=len(start_profiles), mininterval=5) as pbar:
         for profile in start_profiles:
-            s1, s2 = profile[0], profile[1]  # Each is a numpy array of shape (n^2,)
+            s1, s2 = profile[0], profile[1]  # Each is a numpy array of shape (n^2,)            
             di = {'instance_name': gtm.instance_name, 'dist': gtm.dist.name, 'gammas': gtm.gammas, 'taus':gtm.taus, \
-                  'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T}
+                  'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T, 'NE_nashpy':gtm.NE_ve, 'numberof_NE': len(gtm.NE_ve)}
             di_conc = {'instance_name': gtm.instance_name, 'dist':gtm.dist.name, 'gammas': gtm.gammas, 'taus':gtm.taus, \
-                      'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T} # concise dictionary, stores only necessary stuff for table 1
+                    'Bank1_start': s1, 'Bank2_start': s2, 'hedgeT':T, 'NE_nashpy':gtm.NE_ve, 'numberof_NE': len(gtm.NE_ve)} # concise dictionary, stores only necessary stuff for table 1
             # Run hedge on each of the games and get the strategy profiles over time
             bank1_gtm, bank2_gtm, _, _ = gtm.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)  # Game true matrix
             bank1_gf1, bank2_gf1, _, _ = gf1.run_hedge(T=T, p_b1=s1, p_b2=s2, eta=eta)  # Game fresh estimate
