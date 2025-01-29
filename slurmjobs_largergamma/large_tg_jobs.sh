@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J tglarge3
-#SBATCH --array=1-10
+#SBATCH --array=1-3
 #SBATCH -A gts-jziani3
 #SBATCH --mem-per-cpu=2G
 #SBATCH --time=2:00:00
@@ -19,12 +19,12 @@ echo "Parameters for iteration: ${iteration}"
 mu=$(echo ${iteration} | cut -d "," -f 1)
 sigma=$(echo ${iteration} | cut -d "," -f 2)
 
-# Extract all remaining fields as gamma values
-gamma_values=$(echo ${iteration} | cut -d "," -f 3-)
+# Convert comma-separated gamma values into space-separated values
+gamma_values=$(echo ${iteration} | cut -d "," -f 3- | tr ',' ' ')
 
 horizon=1000
 eta=0.1
 num_startprofiles=5
 
 # Pass gamma values as space-separated arguments
-python mainrun_instance_tg.py --mu ${mu} --sigma ${sigma} --gamma ${gamma_values} --horizon ${horizon} --eta ${eta} --num_startprofiles ${num_startprofiles}
+python tg_larger_run.py --mu ${mu} --sigma ${sigma} --gamma ${gamma_values} --horizon ${horizon} --eta ${eta} --num_startprofiles ${num_startprofiles}
