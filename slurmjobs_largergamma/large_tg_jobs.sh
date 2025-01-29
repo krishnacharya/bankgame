@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J tglarge3
-#SBATCH --array=1-3
+#SBATCH --array=1-320
 #SBATCH -A gts-jziani3
 #SBATCH --mem-per-cpu=2G
 #SBATCH --time=2:00:00
@@ -13,7 +13,7 @@ module load anaconda3/2022.05.0.1
 conda activate bankgame
 
 n=$SLURM_ARRAY_TASK_ID
-iteration=$(sed -n "${n}p" large_tg_instances_test.csv)  # Get the nth line (1-indexed) of the file
+iteration=$(sed -n "${n}p" tg_3gammas.csv)  # Get the nth line (1-indexed) of the file
 echo "Parameters for iteration: ${iteration}"
 
 mu=$(echo ${iteration} | cut -d "," -f 1)
@@ -22,7 +22,7 @@ sigma=$(echo ${iteration} | cut -d "," -f 2)
 # Convert comma-separated gamma values into space-separated values
 gamma_values=$(echo ${iteration} | cut -d "," -f 3- | tr ',' ' ')
 
-horizon=1000
+horizon=200000
 eta=0.1
 num_startprofiles=5
 
