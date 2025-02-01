@@ -20,8 +20,8 @@ mu=$(echo ${iteration} | cut -d "," -f 1)
 sigma=$(echo ${iteration} | cut -d "," -f 2)
 gamma_l=$(echo ${iteration} | cut -d "," -f 3)
 gamma_h=$(echo ${iteration} | cut -d "," -f 4)
-horizon=500000
+horizon=100000
 eta=0.1
-num_startprofiles=5
+num_startprofiles=20
 
 python mainrun_instance_tg.py --mu ${mu} --sigma ${sigma} --gamma_l ${gamma_l} --gamma_h ${gamma_h} --horizon ${horizon} --eta ${eta} --num_startprofiles ${num_startprofiles}
