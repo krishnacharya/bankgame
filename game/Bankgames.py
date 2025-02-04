@@ -51,7 +51,7 @@ class GameTrueMatrix:
             total_distance = dist_b1 + dist_b2
             if total_distance < min_distance:
                 min_distance = total_distance
-                closest_NE = (NE_b2, NE_b1)  # Store the closest NE
+                closest_NE = (NE_b1, NE_b2)   # Store the closest NE
         return closest_NE, total_distance
 
     def saveget_NE_vertexenum(self):
@@ -76,7 +76,8 @@ class GameFreshEstimate:
 
     def get_PayoffMat_est(self):
         y_samples = self.dist.get_samples(self.num_samples)
-        return matrix_from_samples(y_samples=y_samples, gammas=self.gammas, taus=self.taus)
+        self.A_current = matrix_from_samples(y_samples=y_samples, gammas=self.gammas, taus=self.taus)
+        return self.A_current
 
     def run_hedge(self, T:int, p_b1, p_b2, eta):
         '''
@@ -109,9 +110,7 @@ class GameMovingAvg:
         self.taus = sorted(taus)
         self.num_samples = num_samples
         self.dist = dist
-        self.num_rounds = 0 # number of rounds of hedge
         self.num_actions = len(gammas) * len(taus)
-        self.A_est = np.zeros((self.num_actions, self.num_actions))
 
     def update_PayoffMat_est(self):
         y_samples = self.dist.get_samples(self.num_samples)
@@ -132,6 +131,8 @@ class GameMovingAvg:
             return type -  (T, #actions), (T, #actions)
             Bank 1, Bank2
         '''
+        self.num_rounds = 0 # tracks number of rounds of hedge
+        self.A_est = np.zeros((self.num_actions, self.num_actions)) # set back to zero if running hedge again on same object
         b1_record = [p_b1]
         b2_record = [p_b2]
         for t in range(T):
